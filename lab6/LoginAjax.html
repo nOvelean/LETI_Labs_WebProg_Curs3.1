@@ -1,0 +1,125 @@
+<html>
+    <head>
+        <title>Авторизация</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                margin: 0;
+                background: url('https://i.pinimg.com/originals/13/01/96/1301961c865313653c631afd263a84dd.gif') no-repeat center center fixed;
+                background-color: #131313;
+            }
+            form {
+                background: white;
+                padding: 20px;
+                border-radius: 8px;
+                box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            }
+            label {
+                display: block;
+                margin-bottom: 5px;
+            }
+            label:has(input[type="checkbox"]) {
+                display: flex;
+                align-items: center;
+                margin-bottom: 10px;
+            }
+            input {
+                width: 100%;
+                padding: 8px;
+                margin-bottom: 10px;
+                border: 1px solid #ccc;
+                border-radius: 4px;
+            }
+            button {
+                width: 100%;
+                padding: 10px;
+                background-color: #131313;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                cursor: pointer;
+            }
+            button:hover {
+                background-color: #131313;
+            }
+            .error {
+                color: red;
+                margin-bottom: 10px;
+                text-align: center;
+                display: none;
+            }
+            .success {
+                color: green;
+                margin-bottom: 10px;
+                text-align: center;
+                display: none;
+            }
+        </style>
+    </head>
+    <body>
+<form id="loginForm">
+    <h2>Авторизация</h2>
+    <div class="error" id="errorMsg"></div>
+    <div class="success" id="successMsg">Добро пожаловать!</div>
+    <label for="username">Имя пользователя:</label>
+    <input type="text" id="username" name="username" required>
+
+    <label for="password">Пароль:</label>
+    <input type="password" id="password" name="password" required>
+
+    <label>
+        Запомни меня
+        <input type="checkbox" id="remember" name="remember">
+    </label>
+
+    <button type="submit">Войти</button>
+</form>
+
+<script>
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        const remember = document.getElementById('remember').checked;
+        const errorMsg = document.getElementById('errorMsg');
+        const successMsg = document.getElementById('successMsg');
+
+        errorMsg.style.display = 'none';
+        successMsg.style.display = 'none';
+
+        fetch('/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                username: username,
+                password: password,
+                remember: remember ? "on" : ""
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                if (data.redirect) {
+                    window.location.href = data.redirect;
+                } else {
+                    successMsg.style.display = 'block';
+                }
+            } else {
+                errorMsg.textContent = data.error;
+                errorMsg.style.display = 'block';
+            }
+        })
+        .catch(error => {
+            errorMsg.textContent = 'Ошибка сети';
+            errorMsg.style.display = 'block';
+        });
+    });
+</script>
+    </body>
+</html>
